@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Boîte à idées</title><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="theme-color" content="#B83A4B">
+<title>Boîte à idées</title><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="theme-color" content="#B83A4B"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Boîte à idées"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>
 :root{--bg:#FFF5E8;--sf:#fffdfa;--ink:#3A2420;--mu:#7C6258;--ln:#EBD6C0;--ac:#B83A4B;--ac2:#FCE4CF;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink)}
@@ -53,6 +53,10 @@ dialog{border:1px solid var(--ln);border-radius:6px;padding:24px;max-width:460px
 #fx{position:fixed;inset:0;pointer-events:none;z-index:50}
 .who::before{content:"";display:inline-block;width:.65em;height:.65em;border-radius:50%;background:var(--pc);margin-right:6px}
 .sw{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}.sw button{width:34px;height:34px;border-radius:50%;border:3px solid transparent}.sw button[aria-pressed=true]{border-color:var(--ink)}
+.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;border:2px solid var(--pc)}.who.hasav::before{display:none}
+.med{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}.med img{flex:1 1 45%;min-width:0;min-height:60px;max-height:150px;object-fit:cover;border-radius:8px;cursor:zoom-in;background:var(--ac2)}
+.pv{display:flex;gap:8px;flex-wrap:wrap}.pvi{position:relative}.pvi img{width:70px;height:70px;object-fit:cover;border-radius:8px}.pvi button{position:absolute;top:-6px;right:-6px;border:0;border-radius:50%;width:20px;height:20px;background:var(--ink);color:#fff;font-size:12px;line-height:1}
+#lb{max-width:96vw;padding:8px;background:#000;border:0}#lb img{max-width:90vw;max-height:82vh;display:block;margin:auto}
 </style></head><body>
 <div id="app" hidden>
 <header><h1>Boîte à idées</h1>
@@ -64,7 +68,7 @@ dialog{border:1px solid var(--ln);border-radius:6px;padding:24px;max-width:460px
 <form class="ticket" id="tk" hidden><div class="th" id="tl"></div><div class="tb">
 <label class="f">Titre<input type="text" name="ttl" required maxlength="120"></label>
 <label class="f">Description<textarea name="dsc" maxlength="1000"></textarea></label>
-<div><button class="btn" type="submit">Ajouter le ticket</button></div></div></form></section>
+<label class="f">Photos ou GIF (3 maximum, GIF 2 Mo max)<input type="file" id="fi" accept="image/*" multiple></label><div class="pv" id="pv"></div><div><button class="btn" type="submit">Ajouter le ticket</button></div></div></form></section>
 <section id="board" hidden><h2>Tableau de bord</h2>
 <div class="rl"><h3>Tirage au sort</h3><div class="pks" id="picks"></div>
 <div class="ac"><button class="btn" id="draw">Tirer un ticket au hasard</button><span class="mu" id="avail"></span></div><div id="res" hidden aria-live="polite"></div></div>
@@ -78,7 +82,7 @@ dialog{border:1px solid var(--ln);border-radius:6px;padding:24px;max-width:460px
 <label class="f">Jeton d'accès<input type="password" name="t" autocomplete="off"></label></div>
 <label class="f">Ton prénom (affiché sur tes tickets)<input type="text" name="n" required maxlength="30"></label>
 <p id="msg"></p><div><button class="btn" type="submit">Se connecter</button></div></div></form></section>
-<canvas id="fx"></canvas><dialog id="dlg"></dialog><div id="toast" hidden></div>
+<dialog id="lb"><img alt=""></dialog><canvas id="fx"></canvas><dialog id="dlg"></dialog><div id="toast" hidden></div>
 <script>
 const $=s=>document.querySelector(s);
 const h=(t,a={},...c)=>{const e=document.createElement(t);for(const[k,v]of Object.entries(a)){if(k==='class')e.className=v;else if(k.startsWith('on'))e.addEventListener(k.slice(2),v);else if(v===true)e.setAttribute(k,'');else if(v!==false&&v!=null)e.setAttribute(k,v)}for(const x of c.flat())if(x)e.append(x.nodeType?x:document.createTextNode(x));return e};
@@ -107,13 +111,38 @@ if(r.status===409||r.status===422)continue;if(!r.ok)throw new Error('Écriture r
 save();render();setStatus('Synchronisé')}catch(e){setStatus(navigator.onLine?e.message:'Hors connexion : modifications conservées',true)}
 busy=false;if(again){again=false;sync()}}
 const upd=(id,p)=>{Object.assign(S.tickets.find(x=>x.id===id),p,{updated:Date.now()});save();render();sync()};
+let files=[];const b64=b=>new Promise(r=>{const x=new FileReader();x.onload=()=>r(x.result.split(',')[1]);x.readAsDataURL(b)});
+const drawPv=()=>$('#pv').replaceChildren(...files.map((x,i)=>h('span',{class:'pvi'},h('img',{src:x.url,alt:''}),h('button',{type:'button','aria-label':'Retirer',onclick:()=>{files.splice(i,1);drawPv()}},'×'))));
+const resetForm=()=>{$('#tk').reset();files=[];drawPv()};
+async function shrink(f){if(f.type==='image/gif'){if(f.size>2097152)throw new Error('GIF trop lourd (2 Mo max) : réduis-le sur ezgif.com');return{blob:f,ext:'gif'}}
+const bm=await createImageBitmap(f),k=Math.min(1,1280/Math.max(bm.width,bm.height)),c=document.createElement('canvas');c.width=Math.round(bm.width*k);c.height=Math.round(bm.height*k);c.getContext('2d').drawImage(bm,0,0,c.width,c.height);
+return{blob:await new Promise(r=>c.toBlob(r,'image/jpeg',.8)),ext:'jpg'}}
+$('#fi').onchange=async e=>{for(const f of e.target.files){if(files.length>=3){toast('3 images maximum par ticket');break}try{const x=await shrink(f);files.push({...x,url:URL.createObjectURL(x.blob)})}catch(err){toast(err.message||'Image illisible')}}e.target.value='';drawPv()};
+const imgC={};
+async function mediaURL(m){const k=m.id+'.'+m.ext;if(imgC[k])return imgC[k];let ca,rq=new Request('https://media.local/'+k),r;try{ca=await caches.open('media-v1');r=await ca.match(rq)}catch{}
+if(!r){const x=await api('contents/media/'+k,{headers:{Accept:'application/vnd.github.raw+json'}});if(!x.ok)throw 0;r=new Response(new Blob([await x.arrayBuffer()],{type:m.ext==='gif'?'image/gif':'image/jpeg'}));try{await ca.put(rq,r.clone())}catch{}}
+return imgC[k]=URL.createObjectURL(await r.blob())}
+const okm=m=>m&&/^[0-9a-f-]{36}$/.test(m.id)&&/^(jpg|gif)$/.test(m.ext);
+const mediaEl=t=>{const l=(t.media||[]).filter(okm);return l.length?h('div',{class:'med'},l.map(m=>{const i=h('img',{alt:'Image jointe'});mediaURL(m).then(u=>i.src=u).catch(()=>i.alt='Image indisponible');i.onclick=()=>mediaURL(m).then(u=>{$('#lb img').src=u;$('#lb').showModal()});return i})):null};
+$('#lb').onclick=()=>$('#lb').close();
+const av=n=>{const a=(S.people[n]||{}).avatar;return a&&/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(a)?h('img',{class:'av',src:a,alt:''}):null};
+async function setAvatar(e){try{const bm=await createImageBitmap(e.target.files[0]),z=Math.min(bm.width,bm.height),c=document.createElement('canvas');c.width=c.height=128;c.getContext('2d').drawImage(bm,(bm.width-z)/2,(bm.height-z)/2,z,z,0,0,128,128);S.people[S.cfg.name]={...S.people[S.cfg.name],avatar:c.toDataURL('image/jpeg',.8),updated:Date.now()};save();render();sync();$('#avp').replaceChildren(av(S.cfg.name))}catch{toast('Image illisible')}}
+function tear(){return new Promise(res=>{const fm=$('#tk'),r=fm.getBoundingClientRect(),cut=56;if(matchMedia('(prefers-reduced-motion:reduce)').matches)return res();
+const mk=cl=>{const c=fm.cloneNode(true);c.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));c.removeAttribute('id');c.querySelector('[name=ttl]').setAttribute('value',fm.ttl.value);c.querySelector('textarea').textContent=fm.dsc.value;Object.assign(c.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:r.width+'px',margin:0,zIndex:60,clipPath:cl,pointerEvents:'none',transformOrigin:'0 '+cut+'px'});document.body.append(c);return c};
+const a=mk(`inset(0 0 ${r.height-cut}px 0)`),b=mk(`inset(${cut}px 0 0 0)`);fm.style.visibility='hidden';
+const t=$('#t2').getBoundingClientRect(),dx=t.left+t.width/2-(r.left+r.width/2),dy=t.top+t.height/2-(r.top+r.height/2);
+a.animate([{transform:'none',opacity:1},{transform:'rotate(-9deg) translate(-14px,-10px)',opacity:1,offset:.25},{transform:'rotate(-14deg) translate(-40px,-90px)',opacity:0}],{duration:900,easing:'ease-out',fill:'forwards'});
+b.animate([{transform:'none'},{transform:'translateY(14px)',offset:.25},{transform:`translate(${dx}px,${dy}px) scale(.08)`,opacity:.2}],{duration:1100,delay:200,easing:'ease-in',fill:'forwards'}).onfinish=()=>{a.remove();b.remove();fm.style.visibility='';res()}})}
 let pick={cat:null,col:null};
-function drawAdd(){$('#cats').replaceChildren(...CATS.map(c=>h('button',{class:'chip',type:'button','aria-pressed':String(pick.cat===c.id),onclick:()=>{$('#tk').reset();pick={cat:c.id,col:c.s?null:c.id};drawAdd()}},c.l)));
-const c=CATS.find(x=>x.id===pick.cat),ss=$('#subs');ss.hidden=!(c&&c.s);ss.replaceChildren(...(c&&c.s?c.s.map(([k,l])=>h('button',{class:'chip',type:'button','aria-pressed':String(pick.col===k),onclick:()=>{$('#tk').reset();pick.col=k;drawAdd()}},l)):[]));
+function drawAdd(){$('#cats').replaceChildren(...CATS.map(c=>h('button',{class:'chip',type:'button','aria-pressed':String(pick.cat===c.id),onclick:()=>{resetForm();pick={cat:c.id,col:c.s?null:c.id};drawAdd()}},c.l)));
+const c=CATS.find(x=>x.id===pick.cat),ss=$('#subs');ss.hidden=!(c&&c.s);ss.replaceChildren(...(c&&c.s?c.s.map(([k,l])=>h('button',{class:'chip',type:'button','aria-pressed':String(pick.col===k),onclick:()=>{resetForm();pick.col=k;drawAdd()}},l)):[]));
 $('#tk').hidden=!pick.col;if(pick.col)$('#tl').textContent=COLS.find(x=>x.k===pick.col).l;$('#tk').style.setProperty('--pc',pc(S.cfg.name))}
-$('#tk').onsubmit=e=>{e.preventDefault();const f=e.target,t=f.ttl.value.trim();if(!t)return;const n=Date.now();S.tickets.push({id:crypto.randomUUID(),col:pick.col,title:t,desc:f.dsc.value.trim(),by:S.cfg.name,created:n,updated:n,done:false,rating:null});f.reset();save();render();sync();toast('Ticket ajouté')};
+$('#tk').onsubmit=async e=>{e.preventDefault();const f=e.target,t=f.ttl.value.trim();if(!t)return;const bt=f.querySelector('button[type=submit]');bt.disabled=true;
+try{const media=[];for(const x of files){const id=crypto.randomUUID(),r=await api('contents/media/'+id+'.'+x.ext,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Ajout image',content:await b64(x.blob)})});if(!r.ok)throw 0;media.push({id,ext:x.ext})}
+const n=Date.now();S.tickets.push({id:crypto.randomUUID(),col:pick.col,title:t,desc:f.dsc.value.trim(),by:S.cfg.name,created:n,updated:n,done:false,rating:null,media});save();render();sync();await tear();resetForm();toast('Ticket ajouté')}
+catch{toast("Envoi des images impossible : vérifie ta connexion et réessaie.")}bt.disabled=false};
 const stars=t=>h('div',{class:'st',role:'group','aria-label':'Note'},[1,2,3,4,5].map(n=>h('button',{class:n<=(t.rating||0)?'on':'',type:'button','aria-label':n+' sur 5',onclick:()=>upd(t.id,{rating:n===t.rating?null:n})},'★')));
-const card=t=>h('article',{class:'card'+(t.done?' done':''),style:'border-left:6px solid '+pc(t.by)+';--pc:'+pc(t.by)},h('h4',{},(t.done?'✓ ':'')+t.title),t.desc&&h('p',{class:'d'},t.desc),h('p',{class:'mu m who'},'Proposé par '+(t.by||'?')),t.done&&stars(t),
+const card=t=>h('article',{class:'card'+(t.done?' done':''),style:'border-left:6px solid '+pc(t.by)+';--pc:'+pc(t.by)},h('h4',{},(t.done?'✓ ':'')+t.title),t.desc&&h('p',{class:'d'},t.desc),mediaEl(t),h('p',{class:'mu m who'+(av(t.by)?' hasav':'')},av(t.by),'Proposé par '+(t.by||'?')),t.done&&stars(t),
 h('div',{class:'ac'},t.done?h('button',{class:'sm',onclick:()=>upd(t.id,{done:false})},'Remettre dans le tirage'):h('button',{class:'sm',onclick:()=>upd(t.id,{done:true})},'Marquer comme fait'),h('button',{class:'sm',onclick:()=>confirm('Supprimer ce ticket ?')&&upd(t.id,{deleted:true})},'Supprimer')));
 const pool=()=>S.tickets.filter(t=>!t.deleted&&!t.done&&S.sel.includes(t.col));
 function count(){const n=pool().length;$('#avail').textContent=n+' ticket'+(n>1?'s':'')+' disponible'+(n>1?'s':'');$('#draw').disabled=!n}
@@ -140,7 +169,7 @@ function tab(n){$('#add').hidden=n!==1;$('#board').hidden=n!==2;$('#t1').setAttr
 $('#t1').onclick=()=>tab(1);$('#t2').onclick=()=>tab(2);
 const link=()=>location.origin+location.pathname+'#setup='+btoa(JSON.stringify({o:S.cfg.o,r:S.cfg.r,t:S.cfg.t}));
 $('#cfg').onclick=()=>{const d=$('#dlg');d.replaceChildren(h('h2',{},'Réglages'),h('p',{class:'mu'},'Connecté : '+S.cfg.name+' · '+S.cfg.o+'/'+S.cfg.r),
-h('p',{class:'mu'},'Ma couleur'),h('div',{class:'sw'},SW.map(c=>h('button',{type:'button','aria-label':c,'aria-pressed':String(pc(S.cfg.name)===c),style:'background:'+c,onclick:e=>{S.people[S.cfg.name]={color:c,updated:Date.now()};save();render();drawAdd();sync();e.currentTarget.parentNode.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===e.currentTarget)))}}))),h('div',{class:'ac col1'},h('button',{class:'btn s',onclick:()=>navigator.clipboard.writeText(link()).then(()=>toast('Lien copié'),()=>prompt('Copie ce lien :',link()))},'Copier le lien de configuration'),
+h('p',{class:'mu'},'Ma couleur'),h('div',{class:'sw'},SW.map(c=>h('button',{type:'button','aria-label':c,'aria-pressed':String(pc(S.cfg.name)===c),style:'background:'+c,onclick:e=>{S.people[S.cfg.name]={...S.people[S.cfg.name],color:c,updated:Date.now()};save();render();drawAdd();sync();e.currentTarget.parentNode.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===e.currentTarget)))}}))),h('p',{class:'mu'},'Ma photo'),h('div',{class:'ac',style:'justify-content:center'},h('span',{id:'avp'},av(S.cfg.name)||'Aucune photo'),h('label',{class:'btn s'},'Choisir une photo',h('input',{type:'file',accept:'image/*',hidden:true,onchange:setAvatar}))),h('div',{class:'ac col1'},h('button',{class:'btn s',onclick:()=>navigator.clipboard.writeText(link()).then(()=>toast('Lien copié'),()=>prompt('Copie ce lien :',link()))},'Copier le lien de configuration'),
 h('button',{class:'btn s',onclick:()=>{const a=h('a',{href:URL.createObjectURL(new Blob([JSON.stringify({tickets:S.tickets},null,1)],{type:'application/json'})),download:'tickets-sauvegarde.json'});a.click()}},'Exporter les tickets (JSON)'),
 h('label',{class:'btn s'},'Importer des tickets',h('input',{type:'file',accept:'.json',hidden:true,onchange:async e=>{try{S.tickets=merge(S.tickets,JSON.parse(await e.target.files[0].text()).tickets);save();render();sync();d.close();toast('Import terminé')}catch{toast('Fichier invalide')}}})),
 h('button',{class:'btn s',onclick:()=>{if(confirm('Se déconnecter sur cet appareil ? Les tickets restent sur GitHub.')){localStorage.removeItem(LS);location.reload()}}},'Se déconnecter'),
