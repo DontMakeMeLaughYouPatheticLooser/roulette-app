@@ -16,7 +16,7 @@ nav button[aria-selected=true]{color:#fff;border-color:#fff}
 .btn.s{background:var(--sf);color:var(--ac);border-color:var(--ln)}
 header .btn.s{background:none;color:#fff;border-color:#F5B79C;padding:5px 10px}
 main,#setup{max-width:1400px;margin:0 auto;padding:24px}
-h2{font-size:1.5rem;margin-bottom:16px}
+h2{font-size:1.5rem;margin-bottom:16px;text-shadow:0 0 8px #FFF5E8,0 0 3px #FFF5E8}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
 .chip{background:var(--sf);border:1px solid var(--ln);padding:8px 14px;border-radius:999px}
 .chip[aria-pressed=true]{background:var(--ac);color:#fff;border-color:var(--ac)}
@@ -57,8 +57,8 @@ dialog{border:1px solid var(--ln);border-radius:6px;padding:24px;max-width:460px
 .med{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}.med img{flex:1 1 45%;min-width:0;min-height:60px;max-height:150px;object-fit:cover;border-radius:8px;cursor:zoom-in;background:var(--ac2)}
 .pv{display:flex;gap:8px;flex-wrap:wrap}.pvi{position:relative}.pvi img{width:70px;height:70px;object-fit:cover;border-radius:8px}.pvi button{position:absolute;top:-6px;right:-6px;border:0;border-radius:50%;width:20px;height:20px;background:var(--ink);color:#fff;font-size:12px;line-height:1}
 #lb{max-width:96vw;padding:8px;background:#000;border:0}#lb img{max-width:90vw;max-height:82vh;display:block;margin:auto}
-body::before{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(rgba(255,245,232,.62),rgba(255,245,232,.62)),url(bg-desktop.jpg) center/cover}
-@media(max-aspect-ratio:1/1){body::before{background:linear-gradient(rgba(255,245,232,.62),rgba(255,245,232,.62)),url(bg-mobile.jpg) center/cover}}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(rgba(255,245,232,.42),rgba(255,245,232,.42)),url(bg-desktop.jpg) center/cover}
+@media(max-aspect-ratio:1/1){body::before{background:linear-gradient(rgba(255,245,232,.42),rgba(255,245,232,.42)),url(bg-mobile.jpg) center/cover}}
 .eb,.ef,.slot{position:fixed;width:280px;z-index:60}.eb{height:170px;background:#C98F5A;border-radius:8px}
 .eb .fl{position:absolute;left:0;top:0;width:100%;height:76px;background:#E3B07A;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:50% 0;transform:scaleY(-1)}
 .ef{height:170px;z-index:62;background:#DDA469;border-radius:8px;clip-path:polygon(0 0,50% 45%,100% 0,100% 100%,0 100%)}
@@ -137,15 +137,15 @@ $('#lb').onclick=()=>$('#lb').close();
 const av=n=>{const a=(S.people[n]||{}).avatar;return a&&/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(a)?h('img',{class:'av',src:a,alt:''}):null};
 async function setAvatar(e){try{const bm=await createImageBitmap(e.target.files[0]),z=Math.min(bm.width,bm.height),c=document.createElement('canvas');c.width=c.height=128;c.getContext('2d').drawImage(bm,(bm.width-z)/2,(bm.height-z)/2,z,z,0,0,128,128);S.people[S.cfg.name]={...S.people[S.cfg.name],avatar:c.toDataURL('image/jpeg',.8),updated:Date.now()};save();render();sync();$('#avp').replaceChildren(av(S.cfg.name))}catch{toast('Image illisible')}}
 async function tear(){const fm=$('#tk'),r=fm.getBoundingClientRect();if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
-const W=280,Ex=innerWidth/2-W/2,Et=Math.max(170,Math.min(innerHeight-230,r.top+r.height*.6)),pos={left:Ex+'px',top:Et+'px'};
+const W=280,Ex=innerWidth/2-W/2,Et=Math.min(innerHeight-230,Math.max(230,innerHeight*.58)),pos={left:Ex+'px',top:Et+'px',opacity:0};
 const mk=(cl,st)=>{const d=h('div',{class:cl});Object.assign(d.style,st);document.body.append(d);return d};
-const bk=mk('eb',pos),fr=mk('ef',pos),sl=mk('slot',{left:Ex-24+'px',top:Et+160+'px'}),fl=h('div',{class:'fl'});bk.append(fl);
+const bk=mk('eb',pos),fr=mk('ef',pos),sl=mk('slot',{left:Ex-24+'px',top:Et+160+'px',opacity:0}),fl=h('div',{class:'fl'});bk.append(fl);
 const c=fm.cloneNode(true);c.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));c.removeAttribute('id');c.querySelector('[name=ttl]').setAttribute('value',fm.ttl.value);c.querySelector('textarea').textContent=fm.dsc.value;
 Object.assign(c.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:r.width+'px',margin:0,zIndex:61,pointerEvents:'none',transformOrigin:'0 0'});document.body.append(c);fm.style.visibility='hidden';
 const A=(el,k,o)=>el.animate(k,{fill:'forwards',easing:'ease-in-out',...o}).finished,k=.3,tw=r.width*k,th=r.height*k,L=Ex+(W-tw)/2,tf=y=>`translate(${L-r.left}px,${y-r.top}px) scale(${k})`;
 const pop=[{opacity:0,transform:'scale(.8)'},{opacity:1,transform:'none'}];
-await Promise.all([A(bk,pop,{duration:350}),A(fr,pop,{duration:350}),A(sl,[{opacity:0},{opacity:1}],{duration:350})]);
 await A(c,[{transform:'none'},{transform:tf(Et-th-12)}],{duration:600});
+await Promise.all([A(bk,pop,{duration:350}),A(fr,pop,{duration:350}),A(sl,[{opacity:0},{opacity:1}],{duration:350})]);
 await A(c,[{transform:tf(Et-th-12)},{transform:tf(Et+22)}],{duration:450});
 await Promise.all([A(c,[{opacity:1},{opacity:0}],{duration:80}),A(fl,[{transform:'scaleY(-1)'},{transform:'none'}],{duration:380})]);
 await new Promise(z=>setTimeout(z,150));
