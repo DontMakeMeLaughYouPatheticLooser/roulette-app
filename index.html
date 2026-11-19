@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Boîte à idées</title><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="theme-color" content="#B83A4B"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Boîte à idées"><meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Boîte à idées</title><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png"><link rel="icon" type="image/png" sizes="192x192" href="icon-192.png"><meta name="theme-color" content="#B83A4B"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Boîte à idées"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>
 :root{--bg:#FFF5E8;--sf:#fffdfa;--ink:#3A2420;--mu:#7C6258;--ln:#EBD6C0;--ac:#B83A4B;--ac2:#FCE4CF;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink)}
@@ -65,6 +65,8 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;background:linear-grad
 .slot{height:16px;width:328px;background:var(--ink);border-radius:8px;z-index:63;box-shadow:0 2px 6px rgba(0,0,0,.3)}
 .ch{display:flex;justify-content:space-between;align-items:center;width:100%;background:none;border:0;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
 .card a,#res a{color:var(--ac);word-break:break-all}
+.sep{margin:26px 0 18px;border-top:2px dashed #B6D1BB}.fait{background:#E3EEE5;border:1px solid #B6D1BB}.fait h3{color:#2F5E3C}
+.lst{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:8px}.lst .card{margin-top:0}.sel{display:block;font-size:.8rem;margin-top:6px}
 </style></head><body>
 <div id="app" hidden>
 <header><h1>Boîte à idées</h1>
@@ -78,9 +80,9 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;background:linear-grad
 <label class="f">Description<textarea name="dsc" maxlength="1000"></textarea></label>
 <label class="f">Photos ou GIF (3 maximum, GIF 2 Mo max)<input type="file" id="fi" accept="image/*" multiple></label><div class="pv" id="pv"></div><div><button class="btn" type="submit">Ajouter le ticket</button></div></div></form></section>
 <section id="board" hidden><h2>Tableau de bord</h2>
-<div class="rl"><h3>Tirage au sort</h3><div class="pks" id="picks"></div>
+<div class="rl"><h3>Tirage au sort</h3><label class="pk"><input type="checkbox" id="all"> <b>Tout sélectionner</b></label><div class="pks" id="picks"></div>
 <div class="ac"><button class="btn" id="draw">Tirer un ticket au hasard</button><span class="mu" id="avail"></span></div><div id="res" hidden aria-live="polite"></div></div>
-<div class="cols" id="cols"></div></section>
+<div class="cols" id="cols"></div><div class="sep"></div><section class="col fait" id="done"></section></section>
 </main></div>
 <section id="setup" hidden><h2>Configuration</h2>
 <form class="ticket" id="sf"><div class="th">Connexion au stockage partagé</div><div class="tb">
@@ -160,13 +162,16 @@ try{const media=[];for(const x of files){const id=crypto.randomUUID(),r=await ap
 const n=Date.now();S.tickets.push({id:crypto.randomUUID(),col:pick.col,title:t,desc:f.dsc.value.trim(),by:S.cfg.name,created:n,updated:n,done:false,rating:null,media});save();render();sync();await tear();resetForm();toast('Ticket ajouté')}
 catch{toast("Envoi des images impossible : vérifie ta connexion et réessaie.")}bt.disabled=false};
 const stars=t=>h('div',{class:'st',role:'group','aria-label':'Note'},[1,2,3,4,5].map(n=>h('button',{class:n<=(t.rating||0)?'on':'',type:'button','aria-label':n+' sur 5',onclick:()=>upd(t.id,{rating:n===t.rating?null:n})},'★')));
-const card=t=>h('article',{class:'card'+(t.done?' done':''),style:'border-left:6px solid '+pc(t.by)+';--pc:'+pc(t.by)},h('h4',{},t.done?'✓ ':'',linkify(t.title)),t.desc&&h('p',{class:'d'},linkify(t.desc)),mediaEl(t),h('p',{class:'mu m who'+(av(t.by)?' hasav':'')},av(t.by),'Proposé par '+(t.by||'?')),t.done&&stars(t),
-h('div',{class:'ac'},t.done?h('button',{class:'sm',onclick:()=>upd(t.id,{done:false})},'Remettre dans le tirage'):h('button',{class:'sm',onclick:()=>upd(t.id,{done:true})},'Marquer comme fait'),h('button',{class:'sm',onclick:()=>confirm('Supprimer ce ticket ?')&&upd(t.id,{deleted:true})},'Supprimer')));
-const pool=()=>S.tickets.filter(t=>!t.deleted&&!t.done&&S.sel.includes(t.col));
-function count(){const n=pool().length;$('#avail').textContent=n+' ticket'+(n>1?'s':'')+' disponible'+(n>1?'s':'');$('#draw').disabled=!n}
-function render(){if(!S.cfg)return;S.sel=S.sel||COLS.map(c=>c.k);S.open=S.open||[];const live=S.tickets.filter(t=>!t.deleted);
+const card=t=>h('article',{class:'card'+(t.done?' done':''),style:'border-left:6px solid '+pc(t.by)+';--pc:'+pc(t.by)},h('h4',{},t.done?'✓ ':'',linkify(t.title)),t.desc&&h('p',{class:'d'},linkify(t.desc)),mediaEl(t),h('p',{class:'mu m who'+(av(t.by)?' hasav':'')},av(t.by),'Proposé par '+(t.by||'?')),t.done&&h('p',{class:'mu m'},'Catégorie d’origine : '+COLS.find(c=>c.k===t.col).l),t.done&&stars(t),!t.done&&h('label',{class:'sel'},h('input',{type:'checkbox',checked:!S.off.includes(t.id),onchange:e=>{S.off=e.target.checked?S.off.filter(x=>x!==t.id):[...S.off,t.id];save();render()}}),' Dans le tirage'),
+h('div',{class:'ac'},t.done?h('button',{class:'sm',onclick:()=>{S.off=S.off.filter(x=>x!==t.id);if(!S.sel.includes(t.col))S.sel.push(t.col);upd(t.id,{done:false})}},'Remettre dans le tirage'):h('button',{class:'sm',onclick:()=>upd(t.id,{done:true})},'Marquer comme fait'),h('button',{class:'sm',onclick:()=>confirm('Supprimer ce ticket ?')&&upd(t.id,{deleted:true})},'Supprimer')));
+const avail=()=>S.tickets.filter(t=>!t.deleted&&!t.done&&S.sel.includes(t.col)),pool=()=>avail().filter(t=>!S.off.includes(t.id));
+function count(){const a=avail(),n=pool().length,m=$('#all');$('#avail').textContent=n+' ticket'+(n>1?'s':'')+' sélectionné'+(n>1?'s':'')+' sur '+a.length;$('#draw').disabled=!n;m.disabled=!a.length;m.checked=a.length>0&&n===a.length;m.indeterminate=n>0&&n<a.length}
+$('#all').onchange=e=>{const ids=avail().map(t=>t.id);S.off=e.target.checked?S.off.filter(x=>!ids.includes(x)):[...new Set([...S.off,...ids])];save();render()};
+function render(){if(!S.cfg)return;S.sel=S.sel||COLS.map(c=>c.k);S.open=S.open||[];S.off=S.off||[];const live=S.tickets.filter(t=>!t.deleted);
 $('#picks').replaceChildren(...COLS.map(c=>h('label',{class:'pk'},h('input',{type:'checkbox',checked:S.sel.includes(c.k),onchange:e=>{S.sel=e.target.checked?[...S.sel,c.k]:S.sel.filter(x=>x!==c.k);save();count()}}),' '+c.l+' ('+live.filter(t=>t.col===c.k&&!t.done).length+')')));
-$('#cols').replaceChildren(...COLS.map(c=>{const ts=live.filter(t=>t.col===c.k).sort((a,b)=>a.done-b.done||b.created-a.created);const op=S.open.includes(c.k);return h('section',{class:'col'},h('h3',{},h('button',{class:'ch','aria-expanded':String(op),onclick:()=>{S.open=op?S.open.filter(x=>x!==c.k):[...S.open,c.k];save();render()}},h('span',{},(op?'▾ ':'▸ ')+c.l),h('span',{class:'n'},String(ts.length)))),op&&(ts.length?ts.map(card):h('p',{class:'mu m'},'Aucun ticket.')))}));count()}
+$('#cols').replaceChildren(...COLS.map(c=>{const ts=live.filter(t=>t.col===c.k&&!t.done).sort((a,b)=>b.created-a.created);const op=S.open.includes(c.k);return h('section',{class:'col'},h('h3',{},h('button',{class:'ch','aria-expanded':String(op),onclick:()=>{S.open=op?S.open.filter(x=>x!==c.k):[...S.open,c.k];save();render()}},h('span',{},(op?'▾ ':'▸ ')+c.l),h('span',{class:'n'},String(ts.length)))),op&&(ts.length?ts.map(card):h('p',{class:'mu m'},'Aucun ticket.')))}));
+const dn=live.filter(t=>t.done).sort((a,b)=>b.updated-a.updated),od=S.open.includes('fait');
+$('#done').replaceChildren(h('h3',{},h('button',{class:'ch','aria-expanded':String(od),onclick:()=>{S.open=od?S.open.filter(x=>x!=='fait'):[...S.open,'fait'];save();render()}},h('span',{},(od?'▾ ':'▸ ')+'Fait'),h('span',{class:'n'},String(dn.length)))),od&&(dn.length?h('div',{class:'lst'},dn.map(card)):h('p',{class:'mu m'},'Aucun ticket fait pour le moment.')));count()}
 let spin=false;const WP=['#B83A4B','#E0742F','#C79A1B','#5E8C3A','#2F8F83','#3B73B9'];
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function wheel(seg){const n=seg.length,A=2*Math.PI/n,R=96,pt=a=>[(R*Math.sin(a)).toFixed(2),(-R*Math.cos(a)).toFixed(2)];
