@@ -72,7 +72,7 @@ input[type=date],input[type=search],select{font:inherit;color:var(--ink);padding
 .tgs{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.tg{background:var(--ac2);border-radius:999px;padding:2px 4px 2px 10px;font-size:.78rem;color:var(--ink)}.tg.r{padding:2px 10px}.tg button{border:0;background:none;margin-left:2px;cursor:pointer;color:var(--mu)}
 .meta{margin:6px 0}.meta a.ad{display:block;font-size:.85rem;color:var(--ac);margin-top:4px;word-break:break-word}
 .pill{display:inline-block;border-radius:999px;padding:1px 9px;font-size:.75rem;background:#FFE7B8;color:#7A4B00}.pill.x{background:#E8E2DB;color:var(--mu)}.pill.s{background:#FAD4D4;color:#8A1F1F}
-#ed,#dn{max-width:520px;width:94%;max-height:92vh;overflow:auto;padding:20px;border:1px solid var(--ln);border-radius:14px}#ed .f,#dn .f{margin-bottom:10px}
+#ed,#dn,#hp{max-width:520px;width:94%;max-height:92vh;overflow:auto;padding:20px;border:1px solid var(--ln);border-radius:14px}#ed .f,#dn .f,#hp .f{margin-bottom:10px}
 .st button:disabled{cursor:default}.rr{display:flex;align-items:center;gap:8px;font-size:.82rem}.rr .rn{min-width:84px;color:var(--mu)}
 .pill.l{background:#FAD4E4;color:#8A1F55}.sm.on{background:#FAD4E4;border-color:#E9A9C6}.mem{margin:6px 0;font-size:.88rem}.mem .dt{color:var(--mu);font-size:.8rem}
 #flt{position:relative;max-width:720px;margin:0 auto;padding-left:30px;border-left:3px solid #E0B9A0}
@@ -80,11 +80,16 @@ input[type=date],input[type=search],select{font:inherit;color:var(--ink);padding
 .te{position:relative;background:var(--sf);border:1px solid var(--ln);border-radius:12px;padding:12px 14px;margin:0 0 14px}
 .te::before{content:"";position:absolute;left:-41px;top:16px;width:14px;height:14px;border-radius:50%;background:var(--pc,var(--ac));border:3px solid var(--bg)}
 .te h4{font-size:1rem}.te .d2{color:var(--mu);font-size:.8rem;margin:2px 0 6px}
+.sm2{padding:3px 11px;font-size:.82rem}#tfw{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 10px}#tfw .tgs{margin:0}#tfm{width:auto}
+.opts{display:flex;flex-wrap:wrap;gap:6px 20px;margin:8px 0}
+.fin{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:10px 0;text-align:left}.fc{background:var(--sf);border:1px solid var(--ln);border-radius:12px;padding:10px 12px}.fc button{margin-top:6px}
+.banner{background:#FFF0C2;color:#6B4A00;padding:10px 24px;font-size:.9rem;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.bk{border-top:1px solid var(--ln);padding-top:10px;margin-top:12px}.stp{padding-left:20px;line-height:1.5}.stp li{margin-bottom:6px}
 </style></head><body>
 <div id="app" hidden>
 <header><h1>Boîte à idées</h1>
 <nav role="tablist"><button role="tab" id="t1" aria-selected="true">Proposer une idée</button><button role="tab" id="t2" aria-selected="false">Tableau de bord</button><button role="tab" id="t3" aria-selected="false">La frise</button></nav>
-<div class="r"><span id="st"></span><button class="btn s" id="cfg">Réglages</button></div></header>
+<div class="r"><span id="st"></span><button class="btn s" id="cfg">Réglages</button></div></header><div id="tkb" class="banner" hidden></div>
 <main>
 <section id="add"><h2>Proposer une idée</h2>
 <div class="chips" id="cats" role="group" aria-label="Catégorie"></div><div class="chips" id="subs" role="group" aria-label="Sous-catégorie" hidden></div>
@@ -93,7 +98,7 @@ input[type=date],input[type=search],select{font:inherit;color:var(--ink);padding
 <label class="f">Description<textarea name="dsc" maxlength="1000"></textarea></label>
 <div id="tgw"></div><label class="f">Adresse (optionnel)<input type="text" name="adr" maxlength="200"></label><label class="f">Date limite (optionnel)<input type="date" name="fin"></label><label class="f">Photos ou GIF (3 maximum, GIF 2 Mo max)<input type="file" id="fi" accept="image/*" multiple></label><div class="pv" id="pv"></div><div><button class="btn" type="submit">Ajouter le ticket</button></div></div></form></section>
 <section id="fr" hidden><h2>La frise</h2><div id="flt"></div></section><section id="board" hidden><h2>Tableau de bord</h2>
-<div class="rl"><h3>Tirage au sort</h3><label class="pk"><input type="checkbox" id="all"> <b id="alll">Tout sélectionner</b></label><div class="pks" id="picks"></div>
+<div class="rl"><h3>Tirage au sort</h3><label class="pk"><input type="checkbox" id="all"> <b id="alll">Tout sélectionner</b></label><div class="pks" id="picks"></div><div id="tfw" hidden><span class="mu">Étiquettes :</span><div class="tgs" id="tfc"></div><select id="tfm" aria-label="Mode des étiquettes"><option value="all">Toutes les étiquettes</option><option value="any">Au moins une</option></select></div><div class="opts"><label class="pk"><input type="checkbox" id="fin"> Finale à trois avec veto</label><label class="pk"><input type="checkbox" id="bst"> Plus de chances aux envies communes</label></div>
 <div class="ac"><button class="btn" id="draw">Tirer un ticket au hasard</button><span class="mu" id="avail"></span></div><div id="res" hidden aria-live="polite"></div></div>
 <div class="bar"><input type="search" id="q" placeholder="Rechercher (titre, description, étiquettes)" aria-label="Rechercher"><select id="so" aria-label="Trier"><option value="new">Plus récents</option><option value="old">Plus anciens</option><option value="auth">Par auteur</option><option value="note">Mieux notés</option><option value="end">Date limite</option><option value="like">Envies communes</option></select></div><div class="cols" id="cols"></div><div class="sep"></div><section class="col fait" id="done"></section></section>
 </main></div>
@@ -105,21 +110,21 @@ input[type=date],input[type=search],select{font:inherit;color:var(--ink);padding
 <label class="f">Jeton d'accès<input type="password" name="t" autocomplete="off"></label></div>
 <label class="f">Ton prénom (affiché sur tes tickets)<input type="text" name="n" required maxlength="30"></label>
 <p id="msg"></p><div><button class="btn" type="submit">Se connecter</button></div></div></form></section>
-<datalist id="tgl"></datalist><dialog id="dn"></dialog><dialog id="ed"></dialog><dialog id="lb"><img alt=""></dialog><canvas id="fx"></canvas><dialog id="dlg"></dialog><div id="toast" hidden></div>
+<datalist id="tgl"></datalist><dialog id="hp"></dialog><dialog id="dn"></dialog><dialog id="ed"></dialog><dialog id="lb"><img alt=""></dialog><canvas id="fx"></canvas><dialog id="dlg"></dialog><div id="toast" hidden></div>
 <script>
 const $=s=>document.querySelector(s);
 const h=(t,a={},...c)=>{const e=document.createElement(t);for(const[k,v]of Object.entries(a)){if(k==='class')e.className=v;else if(k.startsWith('on'))e.addEventListener(k.slice(2),v);else if(v===true)e.setAttribute(k,'');else if(v!==false&&v!=null)e.setAttribute(k,v)}for(const x of c.flat())if(x)e.append(x.nodeType?x:document.createTextNode(x));return e};
 const CATS=[{id:'culture',l:'Activité culturelle',s:[['cinema','Cinéma'],['expo','Exposition'],['concert','Concert'],['sortie','Sortie / balade']]},{id:'sport',l:'Activité sportive'},{id:'film',l:'Films / séries'},{id:'resto',l:'Restaurant',s:[['restaurant','Restaurant'],['fastfood','Fast-food']]},{id:'autre',l:'Autre idée'}];
 const COLS=CATS.flatMap(c=>c.s?c.s.map(([k,l])=>({k,l})):[{k:c.id,l:c.l}]);
 const LS='programme-a-deux.v1',FILE='tickets.json';
-let S=JSON.parse(localStorage.getItem(LS)||'{}');S.tickets=S.tickets||[];S.people=S.people||{};
+let S=JSON.parse(localStorage.getItem(LS)||'{}');S.tickets=S.tickets||[];S.people=S.people||{};S.meta=S.meta||{};
 const save=()=>localStorage.setItem(LS,JSON.stringify(S));
 const enc=s=>btoa(unescape(encodeURIComponent(s))),dec=s=>decodeURIComponent(escape(atob(s.replace(/\n/g,''))));
 const setStatus=(m,e)=>{const s=$('#st');s.textContent=m;s.className=e?'err':''};
 let tt;const toast=m=>{const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2500)};
 const hd=(o={})=>({Accept:'application/vnd.github+json',Authorization:'Bearer '+S.cfg.t,...o});
 const api=(p,o={})=>fetch(`https://api.github.com/repos/${encodeURIComponent(S.cfg.o)}/${encodeURIComponent(S.cfg.r)}${p?'/'+p:''}`,{cache:'no-store',...o,headers:hd(o.headers)});
-async function pull(){const r=await api('contents/'+FILE);if(r.status===404)return{tickets:[],people:{},sha:null};if(!r.ok)throw new Error(r.status===401||r.status===403?'Accès refusé : vérifie le jeton (permission Contents en lecture/écriture).':'Erreur GitHub '+r.status);const j=await r.json(),d=JSON.parse(dec(j.content));return{tickets:d.tickets||[],people:d.people||{},sha:j.sha}}
+async function pull(){const r=await api('contents/'+FILE);if(r.status===404)return{tickets:[],people:{},meta:{},sha:null};if(!r.ok)throw new Error(r.status===401||r.status===403?'Accès refusé : vérifie le jeton (permission Contents en lecture/écriture).':'Erreur GitHub '+r.status);const j=await r.json(),d=JSON.parse(dec(j.content)),ex=(r.headers.get('github-authentication-token-expiration')||'').slice(0,10);if(ymdOk(ex)&&!(d.meta||{}).tokenExp&&!S.meta.tokenExp)S.meta={tokenExp:ex,at:Date.now()};return{tickets:d.tickets||[],people:d.people||{},meta:d.meta||{},sha:j.sha}}
 const mm=(a={},b={})=>{const m={...a};for(const[k,v]of Object.entries(b))if(!m[k]||(v.at||0)>(m[k].at||0))m[k]=v;return m};
 const merge=(a,b)=>{const m=new Map();for(const t of[...a,...b]){const x=m.get(t.id);if(!x){m.set(t.id,t);continue}const r={...((t.updated||0)>(x.updated||0)?t:x)},ra=mm(x.ratings,t.ratings),li=mm(x.likes,t.likes);if(Object.keys(ra).length)r.ratings=ra;if(Object.keys(li).length)r.likes=li;m.set(t.id,r)}return[...m.values()]};
 const canon=v=>Array.isArray(v)?v.map(canon):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canon(v[k])])):v;
@@ -127,11 +132,11 @@ const SW=['#B83A4B','#E0742F','#C79A1B','#5E8C3A','#2F8F83','#3B73B9','#7A52B3',
 const okc=c=>/^#[0-9a-f]{6}$/i.test(c)?c:null,pc=n=>okc((S.people[n]||{}).color)||'#B8A99A';
 const mergeP=(a,b)=>{const m={...a};for(const[k,v]of Object.entries(b))if(!m[k]||(v.updated||0)>(m[k].updated||0))m[k]=v;return m};
 const autoColor=()=>{if(!S.people[S.cfg.name]){const u=Object.values(S.people).map(p=>p.color);S.people[S.cfg.name]={color:SW.find(c=>!u.includes(c))||SW[0],updated:Date.now()}}};
-const ser=(x,p)=>JSON.stringify(canon([x.slice().sort((a,b)=>a.id<b.id?-1:1),Object.entries(p).sort()]));
+const ser=(x,p,m)=>JSON.stringify(canon([x.slice().sort((a,b)=>a.id<b.id?-1:1),Object.entries(p).sort(),m||{}]));
 let busy=false,again=false;
 async function sync(){if(busy){again=true;return}busy=true;setStatus('Synchronisation…');
-try{for(let i=0;i<3;i++){const rm=await pull();S.tickets=merge(S.tickets,rm.tickets);S.people=mergeP(S.people,rm.people);autoColor();
-if(ser(S.tickets,S.people)!==ser(rm.tickets,rm.people)){const r=await api('contents/'+FILE,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Mise à jour des tickets',content:enc(JSON.stringify({tickets:S.tickets,people:S.people},null,1)),...(rm.sha?{sha:rm.sha}:{})})});
+try{for(let i=0;i<3;i++){const rm=await pull();S.tickets=merge(S.tickets,rm.tickets);S.people=mergeP(S.people,rm.people);autoColor();if(((rm.meta||{}).at||0)>(S.meta.at||0))S.meta=rm.meta;
+if(ser(S.tickets,S.people,S.meta)!==ser(rm.tickets,rm.people,rm.meta)){const r=await api('contents/'+FILE,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Mise à jour des tickets',content:enc(JSON.stringify({tickets:S.tickets,people:S.people,meta:S.meta},null,1)),...(rm.sha?{sha:rm.sha}:{})})});
 if(r.status===409||r.status===422)continue;if(!r.ok)throw new Error('Écriture refusée ('+r.status+') : le jeton doit avoir « Contents : Read and write ».')}break}
 save();render();setStatus('Synchronisé')}catch(e){setStatus(navigator.onLine?e.message:'Hors connexion : modifications conservées',true)}
 busy=false;if(again){again=false;sync()}}
@@ -179,10 +184,15 @@ catch{toast("Envoi des images impossible : vérifie ta connexion et réessaie.")
 const stars=t=>h('div',{class:'st',role:'group','aria-label':'Note'},[1,2,3,4,5].map(n=>h('button',{class:n<=(t.rating||0)?'on':'',type:'button','aria-label':n+' sur 5',onclick:()=>upd(t.id,{rating:n===t.rating?null:n})},'★')));
 const card=t=>h('article',{class:'card'+(t.done?' done':''),style:'border-left:6px solid '+pc(t.by)+';--pc:'+pc(t.by)},h('h4',{},t.done?'✓ ':'',linkify(t.title)),t.desc&&h('p',{class:'d'},linkify(t.desc)),mediaEl(t),metaEl(t),h('p',{class:'mu m who'+(av(t.by)?' hasav':'')},av(t.by),'Proposé par '+(t.by||'?')),t.done&&h('p',{class:'mu m'},'Catégorie d’origine : '+COLS.find(c=>c.k===t.col).l),t.done&&memEl(t),t.done&&ratingEl(t),!t.done&&h('label',{class:'sel'},h('input',{type:'checkbox',checked:S.pick.includes(t.id),onchange:e=>{S.pick=e.target.checked?[...S.pick,t.id]:S.pick.filter(x=>x!==t.id);save();render()}}),' Sélectionné pour le tirage'+(!S.pick.includes(t.id)&&S.sel.includes(t.col)?' (déjà inclus via sa catégorie)':'')),
 h('div',{class:'ac'},!t.done&&likeBtn(t),t.done?h('button',{class:'sm',onclick:()=>{if(!S.pick.includes(t.id))S.pick.push(t.id);upd(t.id,{done:false})}},'Remettre dans le tirage'):h('button',{class:'sm',onclick:()=>doneDlg(t.id)},'Marquer comme fait'),t.done&&h('button',{class:'sm',onclick:()=>doneDlg(t.id,true)},'Souvenir'),h('button',{class:'sm',onclick:()=>editT(t.id)},'Modifier'),h('button',{class:'sm',onclick:()=>confirm('Supprimer ce ticket ?')&&upd(t.id,{deleted:true})},'Supprimer')));
-const pool=()=>S.tickets.filter(t=>!t.deleted&&!t.done&&(S.pick.includes(t.id)||S.sel.includes(t.col)));
+const tagOk=t=>{const f=S.tf||[],g=t.tags||[];return!f.length||(S.tm==='any'?f.some(x=>g.includes(x)):f.every(x=>g.includes(x)))};
+const pool=()=>S.tickets.filter(t=>!t.deleted&&!t.done&&(S.pick.includes(t.id)||(S.sel.includes(t.col)&&tagOk(t))));
 function count(){const n=pool().length,m=$('#all'),k=S.sel.length;$('#avail').textContent=n+' ticket'+(n>1?'s':'')+' éligible'+(n>1?'s':'');m.checked=k===COLS.length;m.indeterminate=k>0&&k<COLS.length;$('#alll').textContent=m.checked?'Tout désélectionner':'Tout sélectionner';$('#draw').disabled=false}
 $('#all').onchange=e=>{S.sel=e.target.checked?COLS.map(c=>c.k):[];save();render()};
-function render(){if(!S.cfg)return;S.sel=S.sel||COLS.map(c=>c.k);S.open=S.open||[];S.pick=S.pick||[];S.so=S.so||'new';$('#tgl').replaceChildren(...[...new Set(S.tickets.filter(t=>!t.deleted).flatMap(t=>(t.tags||[])))].sort().map(v=>h('option',{value:v})));const live=S.tickets.filter(t=>!t.deleted);
+function render(){if(!S.cfg)return;S.sel=S.sel||COLS.map(c=>c.k);S.open=S.open||[];S.pick=S.pick||[];S.so=S.so||'new';
+{const allT=[...new Set(S.tickets.filter(t=>!t.deleted&&!t.done).flatMap(t=>t.tags||[]))].sort();S.tf=(S.tf||[]).filter(x=>allT.includes(x));$('#tfw').hidden=!allT.length;
+$('#tfc').replaceChildren(...allT.map(x=>h('button',{class:'chip sm2','aria-pressed':String(S.tf.includes(x)),type:'button',onclick:()=>{S.tf=S.tf.includes(x)?S.tf.filter(y=>y!==x):[...S.tf,x];save();render()}},x)));$('#tfm').value=S.tm||'all';$('#fin').checked=!!S.fin;$('#bst').checked=!!S.boost;
+const tb=$('#tkb'),ex=S.meta.tokenExp;tb.hidden=true;if(ymdOk(ex)){const[y,m,d]=ex.split('-').map(Number),dl=Math.ceil((new Date(y,m-1,d,23,59,59)-Date.now())/864e5);if(dl<=30){tb.hidden=false;tb.replaceChildren(h('span',{},dl<=0?'⚠️ Le jeton GitHub a expiré : l’application ne pourra plus enregistrer.':'⚠️ Le jeton GitHub expire '+(dl===1?'aujourd’hui':'dans '+(dl-1)+' jour'+(dl>2?'s':''))+' (le '+fr(ex,{day:'numeric',month:'long',year:'numeric'})+').'),h('button',{class:'sm',onclick:stepsDlg},'Comment le renouveler'))}}}
+$('#tgl').replaceChildren(...[...new Set(S.tickets.filter(t=>!t.deleted).flatMap(t=>(t.tags||[])))].sort().map(v=>h('option',{value:v})));const live=S.tickets.filter(t=>!t.deleted);
 $('#picks').replaceChildren(...COLS.map(c=>h('label',{class:'pk'},h('input',{type:'checkbox',checked:S.sel.includes(c.k),onchange:e=>{S.sel=e.target.checked?[...S.sel,c.k]:S.sel.filter(x=>x!==c.k);save();count()}}),' '+c.l+' ('+live.filter(t=>t.col===c.k&&!t.done).length+')')));
 $('#cols').replaceChildren(...COLS.map(c=>{const ts=live.filter(t=>t.col===c.k&&!t.done&&match(t)).sort(cmp);const op=S.open.includes(c.k)||!!Q;return h('section',{class:'col'},h('h3',{},h('button',{class:'ch','aria-expanded':String(op),onclick:()=>{S.open=op?S.open.filter(x=>x!==c.k):[...S.open,c.k];save();render()}},h('span',{},(op?'▾ ':'▸ ')+c.l),h('span',{class:'n'},String(ts.length)))),op&&(ts.length?ts.map(card):h('p',{class:'mu m'},'Aucun ticket.')))}));
 const dn=live.filter(t=>t.done&&match(t)).sort(S.so==='new'?(a,b)=>b.updated-a.updated:cmp),od=S.open.includes('fait')||!!Q;
@@ -238,21 +248,33 @@ return `<path d="M0 0L${x0} ${y0}A${R} ${R} 0 0 1 ${x1} ${y1}Z" fill="${c}" stro
 function fireworks(){const c=$('#fx'),x=c.getContext('2d'),cols=['#E0742F','#B83A4B','#F2B134','#4C9F70','#7A52B3'],t0=performance.now();c.width=innerWidth;c.height=innerHeight;let P=[],last=0;
 const burst=()=>{const cx=innerWidth*(.2+Math.random()*.6),cy=innerHeight*(.15+Math.random()*.4),k=cols[Math.random()*5|0];for(let i=0;i<60;i++){const a=Math.PI*2*i/60,v=2+Math.random()*4;P.push({x:cx,y:cy,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:1,c:k})}};
 burst();const f=n=>{const e=n-t0;if(e-last>450&&e<2200){burst();last=e}x.clearRect(0,0,c.width,c.height);P=P.filter(p=>p.l>0);for(const p of P){p.x+=p.vx;p.y+=p.vy;p.vy+=.06;p.vx*=.985;p.l-=.014;x.globalAlpha=Math.max(p.l,0);x.fillStyle=p.c;x.beginPath();x.arc(p.x,p.y,2.2,0,7);x.fill()}if(P.length||e<2200)requestAnimationFrame(f);else x.clearRect(0,0,c.width,c.height)};requestAnimationFrame(f)}
-$('#draw').onclick=()=>{if(spin)return;const p=pool(),r=$('#res');r.hidden=false;if(!p.length){r.replaceChildren(h('p',{},'Aucun ticket éligible : coche au moins une catégorie ou sélectionne un ticket (les tickets déjà faits sont exclus).'));return}
-const w=p[Math.floor(Math.random()*p.length)],rm=matchMedia('(prefers-reduced-motion:reduce)').matches;
+const wOf=t=>S.boost&&likers(t).length>=2?3:1;
+const pickW=a=>{let x=Math.random()*a.reduce((s,t)=>s+wOf(t),0);for(const t of a){x-=wOf(t);if(x<0)return t}return a[a.length-1]};
+const sample=(a,n)=>{const c=[...a],o=[];while(o.length<n&&c.length){const t=pickW(c);o.push(t);c.splice(c.indexOf(t),1)}return o};
+function reveal(w,p){const r=$('#res'),rm=matchMedia('(prefers-reduced-motion:reduce)').matches;
 const show=()=>{spin=false;r.replaceChildren(...[h('p',{class:'mu m'},COLS.find(c=>c.k===w.col).l),h('h3',{},linkify(w.title)),w.desc&&h('p',{class:'d'},linkify(w.desc)),h('p',{class:'mu m'},'Proposé par '+(w.by||'?')),h('div',{class:'ac'},h('button',{class:'btn',onclick:()=>{r.hidden=true;doneDlg(w.id)}},'Marquer comme fait'),h('button',{class:'btn s',onclick:()=>r.hidden=true},'Fermer'))].filter(Boolean));if(!rm)fireworks()};
 let seg=[w,...p.filter(t=>t!==w).sort(()=>Math.random()-.5).slice(0,11)].sort(()=>Math.random()-.5);while(seg.length<6)seg=seg.concat(seg);seg=seg.slice(0,12);const n=seg.length;
 if(rm)return show();
 spin=true;const box=h('div',{class:'wh'},h('div',{class:'ptr'}));box.insertAdjacentHTML('beforeend',wheel(seg));r.replaceChildren(box);
 const A=360/n,deg=1800-(seg.indexOf(w)+.5)*A+(Math.random()-.5)*A*.6,sv=box.querySelector('svg');
-requestAnimationFrame(()=>requestAnimationFrame(()=>sv.style.transform=`rotate(${deg}deg)`));setTimeout(show,4400)};
+requestAnimationFrame(()=>requestAnimationFrame(()=>sv.style.transform=`rotate(${deg}deg)`));setTimeout(show,4400)}
+function finale(p){const r=$('#res'),c=sample(p,3),nm=[S.cfg.name,Object.keys(S.people).find(n=>n!==S.cfg.name)||'Personne 2'];let rest=[...c],st=0;
+const dr=()=>r.replaceChildren(h('p',{class:'mu m'},'Finale à trois : chacun écarte un ticket, le dernier gagne.'),h('h3',{},'Au tour de '+nm[st]+' : écarte un ticket'),h('div',{class:'fin'},rest.map(t=>h('div',{class:'fc'},h('div',{class:'mu m'},COLS.find(x=>x.k===t.col).l),h('h4',{},linkify(t.title)),t.desc&&h('p',{class:'d'},linkify(t.desc.slice(0,120))),h('button',{class:'btn s',type:'button',onclick:()=>{rest=rest.filter(x=>x!==t);st++;rest.length===1?reveal(rest[0],c):dr()}},'Écarter')))),h('div',{class:'ac'},h('button',{class:'btn s',type:'button',onclick:()=>r.hidden=true},'Annuler')));dr()}
+$('#draw').onclick=()=>{if(spin)return;const p=pool(),r=$('#res');r.hidden=false;if(!p.length){r.replaceChildren(h('p',{},'Aucun ticket éligible : coche au moins une catégorie ou sélectionne un ticket (les tickets déjà faits sont exclus).'));return}
+if(S.fin&&p.length>=3)return finale(p);reveal(pickW(p),p)};
+$('#tfm').onchange=e=>{S.tm=e.target.value;save();render()};$('#fin').onchange=e=>{S.fin=e.target.checked;save()};$('#bst').onchange=e=>{S.boost=e.target.checked;save()};
+const backup=()=>{const d=today(),a=h('a',{href:URL.createObjectURL(new Blob([JSON.stringify({tickets:S.tickets,people:S.people,meta:S.meta},null,1)],{type:'application/json'})),download:'boite-a-idees-'+d+'.json'});document.body.append(a);a.click();a.remove();S.lastBackup=d;save();toast('Sauvegarde téléchargée')};
+const backupBlock=()=>h('div',{class:'bk'},h('button',{class:'btn',type:'button',onclick:backup},'Télécharger une sauvegarde'),h('p',{class:'mu m'},(S.lastBackup?'Dernière sauvegarde : '+fr(S.lastBackup,{day:'numeric',month:'long',year:'numeric'}):'Aucune sauvegarde sur cet appareil')+' · elle contient les tickets, pas les images.'));
+const tokenBlock=d=>{const ex=h('input',{type:'date',value:ymdOk(S.meta.tokenExp)?S.meta.tokenExp:''});return h('div',{class:'bk'},h('p',{class:'mu'},'Jeton GitHub'),h('label',{class:'f'},'Date d’expiration (partagée entre vous deux)',ex),h('div',{class:'ac'},h('button',{class:'btn s',type:'button',onclick:()=>{S.meta={tokenExp:ex.value||'',at:Date.now()};save();render();sync();toast('Date enregistrée')}},'Enregistrer la date'),h('button',{class:'btn s',type:'button',onclick:()=>{d.close();tokenDlg()}},'Changer le jeton'),h('button',{class:'btn s',type:'button',onclick:()=>{d.close();stepsDlg()}},'Comment renouveler')))};
+function tokenDlg(){const d=$('#hp'),i=h('input',{type:'password',autocomplete:'off'}),m=h('p',{class:'mu m'});d.replaceChildren(h('h2',{},'Changer le jeton'),h('label',{class:'f'},'Nouveau jeton (github_pat_…)',i),m,h('div',{class:'ac'},h('button',{class:'btn',type:'button',onclick:async()=>{const old=S.cfg.t;S.cfg.t=i.value.trim();try{const r=await api('');if(!r.ok)throw 0;save();d.close();sync();toast('Jeton mis à jour')}catch{S.cfg.t=old;m.textContent='Jeton refusé ou connexion impossible.'}}},'Valider'),h('button',{class:'btn s',type:'button',onclick:()=>d.close()},'Annuler')));d.showModal()}
+function stepsDlg(){const d=$('#hp');d.replaceChildren(h('h2',{},'Renouveler le jeton GitHub'),h('ol',{class:'stp'},['Sur github.com : ta photo de profil > Settings > Developer settings > Personal access tokens > Fine-grained tokens > Generate new token.','Nom au choix, expiration la plus longue possible (1 an), accès limité au dépôt roulette-data (Only select repositories), permission Contents : Read and write.','Copie le jeton (github_pat_…) dès qu’il s’affiche.','Ici : Réglages > Changer le jeton, colle-le, puis saisis la nouvelle date d’expiration.','Réglages > Copier le lien de configuration, envoie-le à l’autre personne : en l’ouvrant, elle garde son prénom et son jeton est remplacé.'].map(x=>h('li',{},x))),h('div',{class:'ac'},h('button',{class:'btn',type:'button',onclick:()=>d.close()},'Fermer')));d.showModal()}
 function tab(n){$('#add').hidden=n!==1;$('#board').hidden=n!==2;$('#fr').hidden=n!==3;[1,2,3].forEach(i=>$('#t'+i).setAttribute('aria-selected',n===i));if(n>1)sync()}
 $('#t1').onclick=()=>tab(1);$('#t2').onclick=()=>tab(2);$('#t3').onclick=()=>tab(3);
 const link=()=>location.origin+location.pathname+'#setup='+btoa(JSON.stringify({o:S.cfg.o,r:S.cfg.r,t:S.cfg.t}));
-$('#cfg').onclick=()=>{const d=$('#dlg');d.replaceChildren(h('h2',{},'Réglages'),h('p',{class:'mu'},'Connecté : '+S.cfg.name+' · '+S.cfg.o+'/'+S.cfg.r+' · version 9'),
+$('#cfg').onclick=()=>{const d=$('#dlg');d.replaceChildren(h('h2',{},'Réglages'),h('p',{class:'mu'},'Connecté : '+S.cfg.name+' · '+S.cfg.o+'/'+S.cfg.r+' · version 10'),backupBlock(),tokenBlock(d),
 h('p',{class:'mu'},'Ma couleur'),h('div',{class:'sw'},SW.map(c=>h('button',{type:'button','aria-label':c,'aria-pressed':String(pc(S.cfg.name)===c),style:'background:'+c,onclick:e=>{S.people[S.cfg.name]={...S.people[S.cfg.name],color:c,updated:Date.now()};save();render();drawAdd();sync();e.currentTarget.parentNode.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===e.currentTarget)))}}))),h('p',{class:'mu'},'Ma photo'),h('div',{class:'ac',style:'justify-content:center'},h('span',{id:'avp'},av(S.cfg.name)||'Aucune photo'),h('label',{class:'btn s'},'Choisir une photo',h('input',{type:'file',accept:'image/*',hidden:true,onchange:setAvatar}))),h('div',{class:'ac col1'},h('button',{class:'btn s',onclick:()=>navigator.clipboard.writeText(link()).then(()=>toast('Lien copié'),()=>prompt('Copie ce lien :',link()))},'Copier le lien de configuration'),
-h('button',{class:'btn s',onclick:()=>{const a=h('a',{href:URL.createObjectURL(new Blob([JSON.stringify({tickets:S.tickets},null,1)],{type:'application/json'})),download:'tickets-sauvegarde.json'});a.click()}},'Exporter les tickets (JSON)'),
-h('label',{class:'btn s'},'Importer des tickets',h('input',{type:'file',accept:'.json',hidden:true,onchange:async e=>{try{S.tickets=merge(S.tickets,JSON.parse(await e.target.files[0].text()).tickets);save();render();sync();d.close();toast('Import terminé')}catch{toast('Fichier invalide')}}})),
+
+h('label',{class:'btn s'},'Importer des tickets',h('input',{type:'file',accept:'.json',hidden:true,onchange:async e=>{try{const j=JSON.parse(await e.target.files[0].text());S.tickets=merge(S.tickets,j.tickets);S.people=mergeP(S.people,j.people||{});save();render();sync();d.close();toast('Import terminé')}catch{toast('Fichier invalide')}}})),
 h('button',{class:'btn s',onclick:()=>{if(confirm('Se déconnecter sur cet appareil ? Les tickets restent sur GitHub.')){localStorage.removeItem(LS);location.reload()}}},'Se déconnecter'),
 h('button',{class:'btn',onclick:()=>d.close()},'Fermer')));d.showModal()};
 function showSetup(){$('#app').hidden=true;$('#setup').hidden=false;const c=S.cfg||{},f=$('#sf');f.o.value=c.o||'';f.r.value=c.r||'roulette-data';f.t.value=c.t||'';f.n.value=c.name||'';f.classList.toggle('pre',!!c.t)}
@@ -262,7 +284,7 @@ if(!c.o||!c.r||!c.t){m.textContent='Renseigne le compte, le dépôt et le jeton,
 S.cfg={...c,name:f.n.value.trim()};try{const r=await api('');if(!r.ok)throw new Error('Dépôt introuvable ou jeton invalide. Vérifie le nom du dépôt et les permissions du jeton.')}catch(x){m.textContent=x.message.startsWith('Dépôt')?x.message:'Connexion impossible ('+x.message+'). Vérifie ton réseau, que le jeton est copié en entier sans espace, et que le compte est un pseudo (pas une adresse).';S.cfg=null;return}
 save();start()};
 function start(){$('#setup').hidden=true;$('#app').hidden=false;drawAdd();render();sync()}
-(function(){if(location.hash.startsWith('#setup=')){try{S.cfg={...JSON.parse(atob(location.hash.slice(7))),name:''};save()}catch{}history.replaceState(null,'',location.pathname)}
+(function(){if(location.hash.startsWith('#setup=')){try{S.cfg={...JSON.parse(atob(location.hash.slice(7))),name:(S.cfg&&S.cfg.name)||''};save()}catch{}history.replaceState(null,'',location.pathname)}
 if(S.cfg&&S.cfg.name)start();else showSetup()})();
 addEventListener('online',sync);document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.cfg&&S.cfg.name)sync()});
 setInterval(()=>{if(!document.hidden&&S.cfg&&S.cfg.name)sync()},60000);
